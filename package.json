@@ -1,0 +1,25 @@
+{
+  "name": "tv-canal-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sync:youtube": "node scripts/sync-youtube.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:clean": "powershell -ExecutionPolicy Bypass -File scripts/kill-dev-ports.ps1",
+    "build": "tsc -b && node scripts/build.mjs",
+    "preview": "node scripts/preview.mjs"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "youtubei.js": "^17.0.1"
+  }
+}
