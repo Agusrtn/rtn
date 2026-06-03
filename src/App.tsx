@@ -119,7 +119,7 @@ function App() {
 
           if (detailsContent.items && detailsContent.items.length > 0) {
             const videoDetails = detailsContent.items[0];
-            setAutoDetectedLive({
+            const liveObj: Video = {
               id: videoId,
               youtubeId: videoId,
               title: videoDetails.snippet.title,
@@ -130,8 +130,9 @@ function App() {
               duration: formatDuration(videoDetails.contentDetails.duration),
               viewCount: videoDetails.statistics.viewCount,
               isLive: true,
-              category: 'entretenimiento' // Default category for live streams
-            });
+              category: 'entretenimiento'
+            };
+            setAutoDetectedLive(liveObj);
             return true; // Live stream found and set
           }
         }
@@ -210,7 +211,7 @@ function App() {
 
               if (detailsContent.items) {
                 detailsContent.items.forEach((videoDetail: any) => {
-                  newVideosFound.push({
+                  const newVid: Video = {
                     id: videoDetail.id,
                     youtubeId: videoDetail.id,
                     title: videoDetail.snippet.title,
@@ -221,8 +222,9 @@ function App() {
                     duration: formatDuration(videoDetail.contentDetails.duration),
                     viewCount: videoDetail.statistics.viewCount,
                     isLive: false, // These are non-live videos
-                    category: 'entretenimiento' // Default category for new videos
-                  });
+                    category: 'entretenimiento'
+                  };
+                  newVideosFound.push(newVid);
                 });
               }
             }
