@@ -22,7 +22,4 @@ await build({
   css: {
     postcss: {},
   },
-  optimizeDeps: {
-    disabled: true,
-  },
 })

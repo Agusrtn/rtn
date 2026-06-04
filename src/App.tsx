@@ -4,7 +4,6 @@ import { categoryLabels, categoryOrder } from './data/videos'
 import { Header } from './components/Header'
 import { HeroLive } from './components/HeroLive'
 import { Filters, CategoryPills, type SortOption } from './components/Filters'
-import { PlaylistTiles } from './components/PlaylistTiles'
 import { VideoRow } from './components/VideoRow'
 import { VideoModal } from './components/VideoModal'
 import { AdminPanel } from './components/AdminPanel'
@@ -30,7 +29,7 @@ function filterVideos(
 ): Video[] {
   let result = list
   if (category !== 'todos') {
-    result = result.filter((v) => v.category === category)
+    result = result.filter((v) => v.categories.includes(category))
   }
   const q = search.trim().toLowerCase()
   if (q) {
@@ -39,7 +38,7 @@ function filterVideos(
         v.title.toLowerCase().includes(q) ||
         v.description.toLowerCase().includes(q) ||
         // Evita crash si la categoría no existe en los labels
-        (categoryLabels[v.category] || "").toLowerCase().includes(q),
+        v.categories.some(cat => (categoryLabels[cat] || "").toLowerCase().includes(q)),
     )
   }
   return result
@@ -130,7 +129,7 @@ function App() {
               duration: formatDuration(videoDetails.contentDetails.duration),
               viewCount: videoDetails.statistics.viewCount,
               isLive: true,
-              category: 'entretenimiento'
+              categories: ['entretenimiento']
             };
             setAutoDetectedLive(liveObj);
             return true; // Live stream found and set
@@ -160,8 +159,15 @@ function App() {
   const [allVideos, setAllVideos] = useState<Video[]>(() => {
     try {
       const saved = localStorage.getItem('rtn_videos')
-      return (saved && saved !== 'undefined') ? JSON.parse(saved) : (videosData.videos as Video[])
-    } catch { return videosData.videos as Video[] }
+      const data = (saved && saved !== 'undefined') ? JSON.parse(saved) : (videosData.videos as any[])
+      // Normalizamos para asegurar que siempre haya un array de categorías
+      return data.map((v: any) => ({
+        ...v,
+        categories: v.categories || (v.category ? [v.category] : ['entretenimiento'])
+      })) as Video[]
+    } catch { 
+      return (videosData.videos as any[]).map(v => ({ ...v, categories: v.categories || [v.category] })) as Video[] 
+    }
   })
   
   const [activeSections, setActiveCategories] = useState<VideoCategory[]>(() => {
@@ -222,7 +228,7 @@ function App() {
                     duration: formatDuration(videoDetail.contentDetails.duration),
                     viewCount: videoDetail.statistics.viewCount,
                     isLive: false, // These are non-live videos
-                    category: 'entretenimiento'
+                    categories: ['entretenimiento']
                   };
                   newVideosFound.push(newVid);
                 });
@@ -269,11 +275,11 @@ function App() {
     }
     const sorted = sortVideos(allVideos, sort)
     const groups: { title: string; items: Video[]; ranked?: boolean }[] = []
-    const popular = sorted.slice(0, 5)
-    if (popular.length) groups.push({ title: 'Populares', items: popular, ranked: true })
+    const recent = sorted.slice(0, 10)
+    if (recent.length) groups.push({ title: 'Más Recientes', items: recent })
 
     for (const cat of activeSections) {
-      const items = sorted.filter((v) => v.category === cat)
+      const items = sorted.filter((v) => v.categories.includes(cat))
       if (items.length) {
         groups.push({ title: categoryLabels[cat] || `Sección ${cat}`, items })
       }
@@ -301,18 +307,18 @@ function App() {
         <HeroCarousel onPlay={setActiveVideo} allVideos={allVideos} />
         
         <HeroLive liveVideo={primaryLiveVideo ?? null} />
-        {!search.trim() && category === 'todos' && (
-          <>
+
+        <div className="toolbar">
+          <CategoryPills 
+            category={category} 
+            onCategoryChange={setCategory} 
+            availableCategories={activeSections}
+          />
+          {(search.trim() || category !== 'todos') && (
             <Filters sort={sort} onSortChange={setSort} />
-            <PlaylistTiles active={category} onSelect={setCategory} />
-          </>
-        )}
-        {(search.trim() || category !== 'todos') && (
-          <div className="toolbar">
-            <CategoryPills category={category} onCategoryChange={setCategory} />
-            <Filters sort={sort} onSortChange={setSort} />
-          </div>
-        )}
+          )}
+        </div>
+
         {filtered.length === 0 ? (
           <p className="empty-state">No hay videos que coincidan con tu búsqueda.</p>
         ) : (

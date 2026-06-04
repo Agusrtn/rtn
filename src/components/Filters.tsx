@@ -1,5 +1,5 @@
 import type { VideoCategory } from '../data/videos'
-import { categoryLabels, categoryOrder } from '../data/videos'
+import { categoryLabels } from '../data/videos'
 
 export type SortOption = 'recientes' | 'antiguos' | 'az'
 
@@ -38,9 +38,6 @@ export function Filters({ sort, onSortChange }: FiltersProps) {
         <Chevron />
       </label>
       <span className="pill pill--muted">Fecha</span>
-      <button type="button" className="filters-bar__catalog">
-        Catálogo
-      </button>
     </div>
   )
 }
@@ -48,21 +45,29 @@ export function Filters({ sort, onSortChange }: FiltersProps) {
 export function CategoryPills({
   category,
   onCategoryChange,
+  availableCategories,
 }: {
   category: VideoCategory | 'todos'
   onCategoryChange: (c: VideoCategory | 'todos') => void
+  availableCategories: VideoCategory[]
 }) {
-  const cats: (VideoCategory | 'todos')[] = ['todos', ...categoryOrder]
   return (
     <div className="category-pills">
-      {cats.map((cat) => (
+      <button
+        type="button"
+        className={category === 'todos' ? 'pill pill--active' : 'pill'}
+        onClick={() => onCategoryChange('todos')}
+      >
+        Todos
+      </button>
+      {availableCategories.map((cat) => (
         <button
           key={cat}
           type="button"
           className={category === cat ? 'pill pill--active' : 'pill'}
           onClick={() => onCategoryChange(cat)}
         >
-          {cat === 'todos' ? 'Todos' : categoryLabels[cat]}
+          {categoryLabels[cat] || cat}
         </button>
       ))}
     </div>

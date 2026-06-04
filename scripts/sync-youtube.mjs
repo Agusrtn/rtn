@@ -189,7 +189,7 @@ async function syncChannel(innertube, channel) {
         ...v,
         channel: channel.name,
         channelId: channel.id,
-        category: channel.name === 'RTN Events' && streamSet.has(id) ? 'streams-pasados' : 'entretenimiento',
+        categories: [channel.name === 'RTN Events' && streamSet.has(id) ? 'streams-pasados' : 'entretenimiento'],
         isLive: v.isLive,
       })
     } catch (e) {
@@ -235,7 +235,7 @@ async function main() {
       name: c.name,
       url: c.url,
     })),
-    liveCount: uniqueVideos.filter((v) => v.category === 'streams-pasados').length,
+    liveCount: uniqueVideos.filter((v) => v.categories.includes('streams-pasados')).length,
     count: uniqueVideos.length,
   }
 
