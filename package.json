@@ -7,7 +7,7 @@
     "sync:youtube": "node scripts/sync-youtube.mjs",
     "dev": "node scripts/dev.mjs",
     "dev:clean": "powershell -ExecutionPolicy Bypass -File scripts/kill-dev-ports.ps1",
-    "build": "tsc -b && node scripts/build.mjs",
+    "build": "node scripts/build.mjs",
     "preview": "node scripts/preview.mjs"
   },
   "dependencies": {
